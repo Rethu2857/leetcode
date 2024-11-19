@@ -1,0 +1,46 @@
+#define MAXSIZE 10000
+
+int push(char c,int *top,char stack[]){
+    if((*top)>=MAXSIZE-1){
+        printf("stackoverflow");
+        return 0;
+    }
+    stack[++(*top)] = c;
+    return 0;
+}
+
+char pop(int *top,char stack[]){
+    if((*top) == -1){
+        printf("stackunderflow");
+        return 0;
+    }
+    return stack[(*top)--];
+}
+
+char peek(int *top,char stack[]){
+    if((*top) == -1){
+        printf("stackunderflow");
+        return 0;
+    }
+    return stack[*top];
+}
+bool isValid(char* s) {
+    int i;
+    char stack[10000];
+    int top = -1;
+    for(i=0;s[i]!='\0';i++){
+        if(s[i] == '(' || s[i] == '[' || s[i] == '{'){
+            push(s[i],&top,stack);
+        }
+        else{
+            if(top == -1 || (s[i] == ')' && peek(&top,stack) != '(') || (s[i] == ']' && peek(&top,stack) != '[') || (s[i] == '}' && peek(&top,stack) != '{'))
+            return false;
+            pop(&top,stack);
+        }
+    }
+    printf("%d",top);
+    if(top == -1){
+        return true;
+    }
+    return false;
+}
