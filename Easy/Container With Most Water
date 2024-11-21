@@ -1,0 +1,28 @@
+int maxArea(int* height, int heightSize) {
+
+int temp, max, counter, i=0, j=0, prev=0, area=0;
+int *p1, *p2;
+p1 = height;
+p2 = p1 + heightSize - 1;
+j = heightSize - 1;
+
+    while (1) {
+        if (i == j) break;
+        if (height[i] <= height[j]) {
+            temp = j - i;
+            area = temp * height[i];
+            prev = (prev > area) ? prev : area;
+            //p1++;
+            i++;
+        }
+        else {
+            temp = j - i;
+            area = temp * height[j];
+            prev = (prev > area) ? prev : area;
+            //p2--;
+            j--;
+        }
+        
+    }
+    return prev;
+}
