@@ -1,0 +1,29 @@
+#include <ctype.h>
+#include <limits.h>
+
+int myAtoi(char* s)
+{
+    int sign;
+    long result;
+
+    sign = 1;
+    result = 0;
+    while ((*s >= 9 && *s <= 13) || *s == ' ')
+        s++;
+    if (*s == '-' || *s == '+')
+    {
+        if (*s == '-')
+            sign = -1;
+        s++;
+    }
+    while (isdigit(*s))
+    {
+        result = result * 10 + (*s - '0');
+        if (sign * result < INT_MIN)
+            return (INT_MIN);
+        if (sign * result > INT_MAX)
+            return (INT_MAX);
+        s++;
+    }
+    return (sign * result);
+}
