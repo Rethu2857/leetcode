@@ -1,0 +1,18 @@
+
+
+int lengthOfLongestSubstring(char * s){
+    int n = strlen(s);
+    int res = 0,l=0 ,i;
+	bool visited[128] = { false };
+    for (i = 0; i < n; i++) {
+		while( visited[s[i]] ){
+			visited[s[l]] = false ;
+			l++ ;
+		}
+		visited[s[i]] = true ;
+		//max 		
+		if (res < i - l + 1)
+        	res = i - l + 1; 
+    }
+    return res;
+}
