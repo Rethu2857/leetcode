@@ -1,0 +1,66 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+ 
+char** letterCombinations(char* digits, int* returnSize) {
+    // if number of digits == 0, return NULL
+    if (strlen(digits) == 0) {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    // create array mapping numbers to possible letters
+    char *letters['9'+1];
+    letters['2'] = "abc";
+    letters['3'] = "def";
+    letters['4'] = "ghi";
+    letters['5'] = "jkl";
+    letters['6'] = "mno";
+    letters['7'] = "pqrs";
+    letters['8'] = "tuv";
+    letters['9'] = "wxyz";
+
+    // find out number of strings to return (multiply number of letters per digit)
+    int possibleCombos = 1;
+    for (int i = 0; i < strlen(digits); i++) {
+        possibleCombos *= strlen(letters[digits[i]]);
+    }
+    *returnSize = possibleCombos;
+
+    // malloc array of char* to contain each string
+    char **combos = (char **)malloc(possibleCombos * sizeof(char *));
+    // for each string, allocate memory for the number of characters in the string
+    // and the null character. zero out the string
+    for (int i = 0; i < possibleCombos; i++) {
+        combos[i] = (char *)calloc(strlen(digits)+1, sizeof(char));
+    }
+    // keep track of string we are currently building
+    int currString = 0;
+
+    // function that does the backtracking
+    void dfs(int index) {
+        // finished building current string so return
+        if (index == strlen(digits)) {
+            currString++;
+            return;
+        }
+
+        // for the current digit, iterate over the possible letters
+        char *possLetters = letters[digits[index]];
+        for (int i = 0; i < strlen(possLetters); i++) {
+            // fill in previous letters from previous string if necessary
+            if (index != 0 && currString != 0 && combos[currString][index-1] == '\0') {
+                strcpy(combos[currString], combos[currString-1]);
+            }
+            // add the current possible letter to the current string
+            combos[currString][index] = possLetters[i];
+            // call function again for the next index in the string
+            dfs(index + 1);
+        }
+    }
+
+    // call backtracking function starting with the first index of the first string
+    dfs(0);
+    return combos;
+}
