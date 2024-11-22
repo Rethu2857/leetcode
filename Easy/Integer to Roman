@@ -1,0 +1,19 @@
+char* intToRoman(int num) {
+    int values[13] = {1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000};
+    char symbols[13][3] = {"I",  "IV", "V",  "IX", "X",  "XL", "L",
+                           "XC", "C",  "CD", "D",  "CM", "M"};
+    int length = sizeof(values) / sizeof(values[0]);
+    int rest = num;
+    char* result = (char*)malloc(50);
+    result[0] = '\0';
+    for (int i = length - 1; i >= 0; i--) {
+        int count = rest / values[i];
+        if (count >= 1) {
+            for (int j = 0; j < count; j++) {
+                strcat(result, symbols[i]);
+            }
+            rest = rest % values[i];
+        }
+    }
+    return result;
+}
