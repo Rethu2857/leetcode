@@ -1,0 +1,69 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+
+ char map[10][4] = 
+ {
+    {/*0*/ '*', '*', '*', '*'},
+    {/*1*/ '*', '*', '*', '*'},
+    {/*2*/ 'a', 'b', 'c', '*'},
+    {/*3*/ 'd', 'e', 'f', '*'},
+    {/*4*/ 'g', 'h', 'i', '*'},
+    {/*5*/ 'j', 'k', 'l', '*'},
+    {/*6*/ 'm', 'n', 'o', '*'},
+    {/*7*/ 'p', 'q', 'r', 's'},
+    {/*8*/ 't', 'u', 'v', '*'},
+    {/*9*/ 'w', 'x', 'y', 'z'}
+ };
+
+
+void aux(char* digits, char *s, int ws, char** ppResArr, int *w)
+{
+    if(digits[0] == '\0')
+    {
+        // we have a valid str in our hand, copy it
+
+        char *pS = (char*)malloc(sizeof(char) * 10);
+        s[ws] = '\0';
+        printf("%s\n", s);
+        sprintf(pS, "%s", s);
+
+        ppResArr[*w] = pS;
+        *w += 1;
+
+        return;
+    }
+
+    for(int i = 0; i < 4 ; i++)
+    {
+        if(map[digits[0] - '0'][i] != '*')
+        {
+            s[ws] = map[digits[0] - '0'][i];
+
+            aux(digits + 1, s, ws + 1, ppResArr, w);
+        }
+    }
+}
+
+char** letterCombinations(char* digits, int* returnSize) {
+    
+    if(strlen(digits) == 0)
+    {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    int len = strlen(digits);
+    char currStr[20] = {0};
+    currStr[19] = '\0';
+
+    char ** ppResArr = (char **)malloc(sizeof(char*) * (16*16));
+    int w = 0;
+
+    aux(digits, currStr, 0, ppResArr, &w);
+
+    *returnSize = w;
+
+    return ppResArr;
+}
