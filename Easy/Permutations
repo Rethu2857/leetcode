@@ -1,0 +1,97 @@
+#include <stdlib.h>
+
+/*
+Each time takes the permutations of the numbers excluding the last one.
+Then for each permutation takes the last number and pushes it between the numbers in all available positions.
+For example:
+
+    for the permutations of [1, 2, 3] first we get the permutations of [1, 2].
+        that [[1, 2], [2, 1]]
+    then for each of them pushes 3 between the numbers in all available positions.
+        for [1, 2] we get [1, 2, 3], [3, 1, 2], [1, 3, 2].
+        for [2, 1] we get [2, 1, 3], [3, 2, 1], [2, 3, 1]. 
+        
+*note - Assumes the table is in the right size.
+*/
+int fill_permutations(int nums[], int nums_size, int *permutations_table[])
+{
+    int permutations_amount = 0;
+    int i = 0;
+    // Holds the line we are currently writing the permutations to.
+    int line_index = 0;
+    // The column we are pushing the last number to.
+    int column_index = 0;
+    // Used for pushing the last number between the other numbers.
+    int temp = 0;
+    
+    // Exit rule.
+    if (0 == nums_size)
+    {
+        return 0;
+    }
+    if (1 == nums_size)
+    {
+        permutations_table[0][0] = nums[0];
+        return 1;
+    }
+    
+    // Fills the permutations of the numbers excluding the last one.
+    permutations_amount = fill_permutations(nums, nums_size - 1, permutations_table);
+    line_index = permutations_amount;
+    
+    for (i = 0; i < permutations_amount; ++i)
+    {
+        // First we push the last number to the permutation at the end. Thats one of the permutations.
+        permutations_table[i][nums_size - 1] = nums[nums_size - 1];
+        
+        // Then we create all the other permutations of that line.
+        for (column_index = 0; column_index < nums_size - 1; ++column_index)
+        {
+            // We copy that permutation to a new line at the end.
+            memcpy(permutations_table[line_index], permutations_table[i], nums_size * sizeof(nums[0]));
+            // Then we switch the last number with each of the other numbers.
+            temp = permutations_table[line_index][column_index];
+            permutations_table[line_index][column_index] = permutations_table[line_index][nums_size - 1];
+            permutations_table[line_index][nums_size - 1] = temp;
+            line_index++;
+        }
+    }
+    
+    return line_index;
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
+    int **permutations = NULL;
+    int *columns_sizes = NULL;
+    int permutations_amount = 1;
+    int i = 0;
+    
+    // Determine the amount of permutations.
+    for (i = 1; i <= numsSize; i++)
+    {
+        permutations_amount *= i;
+    }
+    permutations = (int**)malloc(sizeof(int*) * permutations_amount);
+    columns_sizes = (int*)malloc(sizeof(int) * permutations_amount);
+    
+    for (i = 0; i < permutations_amount; i++)
+    {
+        // Assign the column sizes.
+        columns_sizes[i] = numsSize;    
+        // Allocates the permutations rows.
+        permutations[i] = (int*)malloc(sizeof(int) * numsSize); 
+    }
+    
+    // Fills the permutations.
+    (void)fill_permutations(nums, numsSize, permutations);
+    
+    *returnSize = permutations_amount;
+    *returnColumnSizes = columns_sizes;
+    
+    return permutations;
+}
