@@ -1,0 +1,48 @@
+#include <stdbool.h>
+
+void solveSudoku(char** board, int boardSize, int* boardColSize) {
+    bool rows[9][9] = {0};
+    bool cols[9][9] = {0};
+    bool boxes[9][9] = {0};
+    
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (board[i][j] != '.') {
+                int num = board[i][j] - '1';
+                rows[i][num] = true;
+                cols[j][num] = true;
+                boxes[(i / 3) * 3 + j / 3][num] = true;
+            }
+        }
+    }
+
+    bool solve() {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (board[row][col] == '.') {
+                    for (int num = 0; num < 9; num++) {
+                        if (!rows[row][num] && !cols[col][num] && !boxes[(row / 3) * 3 + col / 3][num]) {
+                            board[row][col] = num + '1';
+                            rows[row][num] = true;
+                            cols[col][num] = true;
+                            boxes[(row / 3) * 3 + col / 3][num] = true;
+                            
+                            if (solve()) {
+                                return true;
+                            }
+                            
+                            board[row][col] = '.';
+                            rows[row][num] = false;
+                            cols[col][num] = false;
+                            boxes[(row / 3) * 3 + col / 3][num] = false;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    solve();
+}
