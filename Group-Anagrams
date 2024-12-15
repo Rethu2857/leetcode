@@ -1,0 +1,141 @@
+#include <assert.h>
+
+typedef struct
+{
+    int idx;
+    char *str;
+} anagram_t;
+
+static void print_arr(char *tag, anagram_t *anagram, int sz)
+{
+    printf("%s\n", tag);
+    for (int idx = 0; idx < sz; idx++)
+    {
+        printf("%s -> ", anagram[idx].str);
+    }
+    printf("NULL\n");
+}
+
+static int compare_func(const void *a, const void *b)
+{
+    anagram_t *a1 = (anagram_t *)a;
+    anagram_t *b1 = (anagram_t *)b;
+    return strcmp(a1->str, b1->str);
+}
+
+static int string_compare(const void *a, const void *b)
+{
+    char *a1 = (char *)a;
+    char *b1 = (char *)b;
+    return *a1 - *b1;
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes) 
+{
+    if (strs == NULL || strsSize == 0)
+    {
+        return NULL;
+    }
+
+    anagram_t *anagram = malloc(sizeof(anagram_t) * strsSize);
+    assert(anagram != NULL);
+
+    char ***result = (char ***)malloc(strsSize * sizeof(char **));
+    assert(result != NULL);
+
+    *returnColumnSizes = (int *)malloc(strsSize * sizeof(int));
+    assert(*returnColumnSizes != NULL);
+
+
+    if (strsSize == 1)
+    {
+        *returnSize = 1;
+        returnColumnSizes[0][0] = 1;
+        result[0] = malloc(sizeof(char *));
+        assert(result[0] != NULL);
+        result[0][0] = malloc(strlen(strs[0]) + 1);
+        assert(result[0][0] != NULL);
+        strcpy(result[0][0], strs[0]);
+        return result;
+    }
+
+    for (int idx = 0; idx < strsSize; idx++)
+    {
+        anagram[idx].idx = idx;
+        anagram[idx].str = malloc(strlen(strs[idx]) + 1);
+        strcpy(anagram[idx].str, strs[idx]);
+    }
+
+    print_arr("question", anagram, strsSize);
+    for (int idx = 0; idx < strsSize; idx++)
+    {
+        qsort(anagram[idx].str, strlen(anagram[idx].str), sizeof(char), string_compare);
+    }
+    print_arr("alpha order", anagram, strsSize);
+
+    qsort(anagram, strsSize, sizeof(anagram_t), compare_func);
+
+    print_arr("grouping them", anagram, strsSize);
+
+    int result_idx = 0, column_cnt = 0, total_group_cnt = 0;
+
+    for (int s_idx = 0, col_idx = 0, idx = 1; idx <= strsSize; idx++)
+    {
+        if (idx == strsSize)
+        {
+            if (idx - s_idx == 0)
+            {
+                break;
+            }
+
+            total_group_cnt++;
+            int group_cnt = idx - s_idx;
+            returnColumnSizes[0][column_cnt++] = group_cnt;
+            result[result_idx] = malloc(sizeof(char *) * group_cnt);
+            assert(result[result_idx] != NULL);
+
+            printf("save string: %s\n", anagram[s_idx].str);
+
+            for (int idx1 = 0; idx1 < group_cnt; idx1++)
+            {
+                result[result_idx][idx1] = malloc(strlen(anagram[s_idx].str) + 1);
+                assert(result[result_idx][idx1] != NULL);
+                strcpy(result[result_idx][idx1], strs[anagram[s_idx].idx]);
+                s_idx++;
+            }
+
+            result_idx++;
+            break;
+        }
+
+        if (strcmp(anagram[idx].str, anagram[idx - 1].str) != 0)
+        {
+            total_group_cnt++;
+            int group_cnt = idx - s_idx;
+            returnColumnSizes[0][column_cnt++] = group_cnt;
+            printf("match found at idx: %u, group cnt: %u\n", idx, group_cnt);
+            result[result_idx] = malloc(sizeof(char *) * group_cnt);
+            assert(result[result_idx] != NULL);
+
+            printf("save string: %s\n", anagram[s_idx].str);
+
+            for (int idx1 = 0; idx1 < group_cnt; idx1++)
+            {
+                result[result_idx][idx1] = malloc(strlen(anagram[s_idx].str) + 1);
+                assert(result[result_idx][idx1] != NULL);
+                strcpy(result[result_idx][idx1], strs[anagram[s_idx].idx]);
+                s_idx++;
+            }
+
+            result_idx++;
+        }
+    }
+
+    *returnSize = total_group_cnt;
+    return result;
+}
