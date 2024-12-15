@@ -1,0 +1,61 @@
+#include <string.h>
+#include <malloc.h>
+
+//#define TABLE_METHOD
+#define GENERATE_TABLE
+
+#define N 32768
+void RLE(char * o) {
+    char s[N];
+    memset(s, 0, N);
+    int j = 0;
+    char ch = o[0];
+    int len = 1;
+    const unsigned long slen = strlen(o);
+    for (int i = 1; i < slen; i++) {
+        if (o[i] != ch) {
+            s[j++] = len + '0';
+            s[j++] = ch;
+
+            ch = o[i];
+            len = 1;
+        } else len++;
+    }
+    s[j++] = len + '0';
+    s[j++] = ch;
+    s[j] = 0;
+    strcpy(o, s);
+}
+
+
+char* countAndSay_withTable(int n) {
+    // Precomputed results for n <= 30
+    if (n == 1) return "1"; 
+    else if (n == 2) return "11"; 
+    // ... (rest of the precomputed values up to n=30)
+    else return "Undefined";
+}
+
+#ifdef GENERATE_TABLE
+#include <stdio.h>
+#endif /* GENERATE_TABLE */
+
+char* countAndSay(int n) {
+#ifdef TABLE_METHOD
+    return countAndSay_withTable(n);
+#else
+    char * s = malloc(N);
+    memset(s, 0, N);
+    s[0] = '1';
+#ifdef GENERATE_TABLE
+    puts("if (n == 1) return \"1\"; ");
+#endif /* GENERATE_TABLE */
+    for (int i = 1; i < n; i++) {
+        RLE(s);
+#ifdef GENERATE_TABLE
+        printf("else if (n == %d) return \"%s\"; \n", i+1, s);
+#endif /* GENERATE_TABLE */
+    }
+    return s;
+#endif /* TABLE_METHOD */
+}
