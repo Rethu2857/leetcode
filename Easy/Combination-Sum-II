@@ -1,0 +1,80 @@
+static int cmp_int_asc(
+	const int * const pThis,
+	const int * const pBase
+){
+	return *pThis - *pBase;
+}
+
+#define MAX_COMBINATION 150
+
+int * * combinationSum2(
+	int * const candidates,
+	const int candidatesLen,
+
+	const int target,
+
+	int * const pRetsLen, //out
+	int * * const pRetLens //out
+){
+	qsort(candidates, candidatesLen, sizeof (int), &cmp_int_asc);
+
+	*pRetLens = (int *)malloc(sizeof (int) * MAX_COMBINATION);
+	int * * const rets = (int * *)malloc(sizeof (int *) * MAX_COMBINATION);
+	*pRetsLen = 0;
+
+	int idxStack[candidatesLen];
+	int idxStackLen = 0;
+	int sum = 0;
+
+	idxStack[idxStackLen] = 0;
+	idxStackLen += 1;
+
+	while (1){
+		if (
+			idxStack[idxStackLen - 1] > (
+				(idxStackLen - 2 >= 0)? idxStack[idxStackLen - 2] : -1
+			) + 1
+		){
+			while (
+				idxStack[idxStackLen - 1] < candidatesLen &&
+				candidates[ idxStack[idxStackLen - 1] ] ==
+					candidates[ idxStack[idxStackLen - 1] - 1 ]
+			){
+				idxStack[idxStackLen - 1] += 1;
+			}
+		}
+		if (!(
+			idxStack[idxStackLen - 1] < candidatesLen &&
+			sum + candidates[ idxStack[idxStackLen - 1] ] <= target
+		)){
+			idxStackLen -= 1;
+			if (!( idxStackLen >= 1 )){
+				break;
+			}
+			sum -= candidates[ idxStack[idxStackLen - 1] ];
+			idxStack[idxStackLen - 1] += 1;
+			continue;
+		}
+
+		sum += candidates[ idxStack[idxStackLen - 1] ];
+
+		if (sum == target){
+			(*pRetLens)[*pRetsLen] = idxStackLen;
+			rets[*pRetsLen] = (int *)malloc(sizeof (int) * (*pRetLens)[*pRetsLen]);
+			for (int i = 0; i < idxStackLen; i += 1){
+				rets[*pRetsLen][i] = candidates[ idxStack[i] ];
+			}
+			*pRetsLen += 1;
+		}
+
+		if (sum < target && idxStack[idxStackLen - 1] + 1 < candidatesLen){
+			idxStack[idxStackLen] = idxStack[idxStackLen - 1] + 1;
+			idxStackLen += 1;
+		}else {
+			sum -= candidates[ idxStack[idxStackLen - 1] ];
+			idxStack[idxStackLen - 1] += 1;
+		}
+	}
+
+	return rets;
+}
